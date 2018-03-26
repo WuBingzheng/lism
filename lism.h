@@ -43,9 +43,6 @@ static inline int _lism_skip_white(lism_ctx_t *ctx)
 {
 	while (ctx->p < ctx->end) {
 		char c = ctx->p[0];
-		if (c == '\0') {
-			return LISM_ERROR;
-		}
 		if (c != ' ' && c != '\t' && c != '\n') {
 			return LISM_OK;
 		}
@@ -60,9 +57,8 @@ static inline int lism_list_start(lism_ctx_t *ctx)
 		return LISM_ERROR;
 	}
 
-	int ret = _lism_skip_white(ctx);
-	if (ret != LISM_OK) {
-		return ret;
+	if (_lism_skip_white(ctx) == LISM_AGAIN) {
+		return LISM_AGAIN;
 	}
 
 	return *ctx->p++ == '(' ? LISM_OK : LISM_ERROR;
@@ -70,10 +66,10 @@ static inline int lism_list_start(lism_ctx_t *ctx)
 
 static inline int lism_list_end(lism_ctx_t *ctx)
 {
-	int ret = _lism_skip_white(ctx);
-	if (ret != LISM_OK) {
-		return ret;
+	if (_lism_skip_white(ctx) == LISM_AGAIN) {
+		return LISM_AGAIN;
 	}
+
 	return *ctx->p++ == ')' ? LISM_OK : LISM_ERROR;
 }
 
@@ -82,9 +78,8 @@ static inline int _lism_get(lism_ctx_t *ctx, char end, char invalid,
 {
 	int comma = _lism_last_tail_comma(ctx);
 
-	int ret = _lism_skip_white(ctx);
-	if (ret != LISM_OK) {
-		return ret;
+	if (_lism_skip_white(ctx) == LISM_AGAIN) {
+		return LISM_AGAIN;
 	}
 
 	*item = ctx->p;
